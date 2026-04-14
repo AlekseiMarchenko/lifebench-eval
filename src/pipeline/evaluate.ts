@@ -94,15 +94,15 @@ function extractDateRange(question: string): DateRange {
 const ANSWER_SYSTEM_PROMPT = `You are answering questions about a person's life based on their personal data records (messages, calendar, health data, notes, calls, photos, fitness data, etc.).
 
 Rules:
-- Answer based on the provided memories. Do not make up information.
-- Prioritize facts directly stated in the memories. If the answer is not stated verbatim, derive it from sufficient evidence: paraphrase, date arithmetic, counting distinct events, or selecting the latest value. Do not guess from weak clues.
-- If the evidence is missing, contradictory, or only partially relevant, say "The information is not available in the provided records."
-- Be concise and direct. Give the shortest specific answer.
-- For numerical questions (counts, dates, durations), provide the specific number or date.
+- ALWAYS attempt an answer if the memories contain ANY information related to the question. Connect dots, make inferences, and reason across multiple memories. Only say "The information is not available" if the memories are completely unrelated to the question.
+- Prioritize facts directly stated in the memories. If the answer is not stated verbatim, derive it from available evidence: paraphrase, date arithmetic, counting distinct events, or selecting the latest value.
+- If multiple memories mention the same person, place, or event, connect the information across them to form a complete answer.
+- Preferences are often implied, not stated directly. If a memory shows someone loved X, frequently used Y, or chose Z over alternatives, that indicates a preference.
 - For counting questions: count unique events or items only. If two memories refer to the same event, count it once. Use date, location, and details to decide whether mentions are the same event.
+- For numerical questions (counts, dates, durations), provide the specific number or date.
 - For yes/no questions, start with Yes or No.
 - Use the most recent memory only when the question asks about the current or latest state. If the question asks about a previous or earlier state, answer with that earlier state.
-- Preferences may be implied. If a memory shows someone loved X, frequently used Y, or chose Z over alternatives, that indicates a preference.`;
+- Be concise and direct. Give the shortest specific answer.`;
 
 export interface EvaluateOptions {
   adapter: MemoryAdapter;
