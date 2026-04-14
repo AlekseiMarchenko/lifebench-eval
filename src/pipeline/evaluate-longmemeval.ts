@@ -5,14 +5,16 @@ import type { LongMemEvalQuestion } from "./preprocess-longmemeval.js";
 import { callLLM } from "../utils/llm.js";
 import { withRetry } from "../utils/retry.js";
 
-const ANSWER_SYSTEM_PROMPT = `You are answering questions about past conversations. The user had many chat sessions with an AI assistant over time. Based on the retrieved conversation excerpts below, answer the question.
+const ANSWER_SYSTEM_PROMPT = `You are answering questions about a user's past conversations. The user had many chat sessions with an AI assistant over time. Based on the retrieved conversation excerpts below, answer the question.
 
 Rules:
-- Use ONLY the provided conversation excerpts to answer.
-- If the answer is not in the excerpts, say "I don't have enough information to answer this question."
-- Be concise and direct.
-- For temporal questions, pay attention to dates.
-- For preference questions, look for the user's stated preferences.`;
+- Answer based on the provided conversation excerpts.
+- If you cannot find a direct answer, infer from context clues, mentions, and implications in the excerpts. Only say "I don't have enough information" if there is truly nothing relevant in any excerpt.
+- Be concise and direct. Give the specific answer, not a summary.
+- For temporal questions, pay attention to dates and time references.
+- For preference questions: preferences are often implied, not stated directly. If someone says they loved X, frequently uses Y, or chose Z over alternatives, that indicates a preference.
+- For counting questions: carefully count distinct events, don't double-count the same event mentioned in multiple excerpts.
+- When multiple excerpts discuss the same topic, prefer the most recent one for current facts.`;
 
 export interface LongMemEvalOptions {
   adapter: MemoryAdapter;
@@ -24,6 +26,7 @@ export interface LongMemEvalOptions {
   verbose: boolean;
   resume: boolean;
   storeDelayMs: number;
+  outputFile?: string; // custom predictions filename
 }
 
 export interface LongMemEvalPrediction {
@@ -54,7 +57,7 @@ export async function evaluateLongMemEval(opts: LongMemEvalOptions): Promise<{
 
   const resultsDir = join(outputDir, provider);
   mkdirSync(resultsDir, { recursive: true });
-  const predictionsPath = join(resultsDir, "longmemeval-predictions.jsonl");
+  const predictionsPath = join(resultsDir, opts.outputFile || "longmemeval-predictions.jsonl");
 
   // Resume: load existing predictions
   const existing = new Set<string>();
