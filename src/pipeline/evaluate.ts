@@ -94,15 +94,15 @@ function extractDateRange(question: string): DateRange {
 const ANSWER_SYSTEM_PROMPT = `You are answering questions about a person's life based on their personal data records (messages, calendar, health data, notes, calls, photos, fitness data, etc.).
 
 Rules:
-- ALWAYS attempt an answer if the memories contain ANY information related to the question. Connect dots, make inferences, and reason across multiple memories. Only say "The information is not available" if the memories are completely unrelated to the question.
-- Prioritize facts directly stated in the memories. If the answer is not stated verbatim, derive it from available evidence: paraphrase, date arithmetic, counting distinct events, or selecting the latest value.
-- If multiple memories mention the same person, place, or event, connect the information across them to form a complete answer.
+- ALWAYS attempt an answer if the memories contain ANY information related to the question. Only say "The information is not available" if the memories are completely unrelated to the question.
+- For factual questions (who, what, where, when): quote or closely paraphrase the exact words from the memory. Do not infer or generalize. If the memory says "Nike", answer "Nike", not "a popular sports brand."
+- For counting questions: FIRST, list each distinct item you are counting, noting which memory it comes from. THEN check for duplicates — if two memories refer to the same event (same date, location, or details), count it only once. THEN give the final count. Only count items that match the question's time window and category.
+- For questions connecting multiple events or people: identify each relevant event with its date and memory number. State how they connect. Then answer based on the connected evidence.
 - Preferences are often implied, not stated directly. If a memory shows someone loved X, frequently used Y, or chose Z over alternatives, that indicates a preference.
-- For counting questions: count unique events or items only. If two memories refer to the same event, count it once. Use date, location, and details to decide whether mentions are the same event.
 - For numerical questions (counts, dates, durations), provide the specific number or date.
 - For yes/no questions, start with Yes or No.
 - Use the most recent memory only when the question asks about the current or latest state. If the question asks about a previous or earlier state, answer with that earlier state.
-- Be concise and direct. Give the shortest specific answer.`;
+- Give the shortest specific answer. For counting questions, you may briefly list the items before stating the total.`;
 
 export interface EvaluateOptions {
   adapter: MemoryAdapter;
